@@ -106,6 +106,14 @@ python scripts/narrate.py --env-file .env
 
 To reuse already generated local narration segments, add `--reuse-audio`. `--video` and `--output` select alternate input and output paths. Narration is aligned to the recorded stages. The video stream is copied without adding or altering visual elements. Only the public narration transcript is sent to Cartesia. The application itself works offline. [Cartesia API reference](https://docs.cartesia.ai/api-reference/tts/bytes).
 
+## Official simulator view
+
+![Official Raven simulator recording frame](media/official-simulator.png)
+
+The final video is recorded directly through the official Raven simulator. No external titles, captions, or decorative background are added. The other PNGs provide detailed application UI references.
+
 ## License
 
 Original application code and generated demo media are MIT licensed. Raven Framework is a separately installed proprietary dependency governed by its own license. No Raven Framework source code is included in this repository.
+
+Official simulator visuals include Raven-provided background assets, which retain their original rights. The MIT license covers the original application code and original artwork, not third-party simulator assets.
