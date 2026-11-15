@@ -86,8 +86,8 @@ def main():
             gaze = None
         model.advance(1/FPS, gaze)
         timeline.append((frame, copy.deepcopy(model)))
-    # Qt 6.12 offscreen develops stale clipped regions after repeated exports.
-    # A fresh process per frame keeps each real app render complete and reproducible.
+    # Isolate each real application render so the sequence is reproducible
+    # without sharing window state or interactive input between frames.
     with ProcessPoolExecutor(max_workers=6, max_tasks_per_child=1) as pool:
         for frame in pool.map(render_frame, timeline):
             if frame % 240 == 0:

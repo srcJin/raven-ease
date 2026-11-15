@@ -86,7 +86,7 @@ QT_QPA_PLATFORM=offscreen python scripts/capture_demo.py
 
 The eleven behavior and UI tests cover reminders, snooze, five-second gaze timing, natural-blink preservation, pause, the full 20-second distance stage, closure baseline and recovery, short-blink and long-fault rejection, coordinate validation, polling interruption, chime retry, closed-eye pause recovery, and skip. The capture script runs the same `EyeBreakApp` drawing routines as the live application at 24 fps, drives deterministic simulated gaze, and exports six PNGs plus `media/demo-silent.mp4`. The 68-second sequence includes all four five-second gaze points, the full distance stage, and a ten-second eye-rest estimate. Its countdown begins three seconds before a reminder for a concise demonstration. It records a simulator sequence, not a hardware recording.
 
-Media capture requires Python 3.11+ for isolated render workers. Each frame uses a fresh process to avoid a Qt offscreen backing-store issue.
+Media capture requires Python 3.11+ for isolated render workers. Each frame uses an isolated process and an explicit session snapshot.
 
 The final `media/demo.mp4` adds English voice narration. The narration uses Cartesia Sonic with an English voice. FFmpeg is required to encode and combine the media. To reproduce it, copy `.env.example` to `.env`, supply your own API key, and run `python scripts/narrate.py --env-file .env`. Narration segments are aligned to the demonstrated stages, with a gentle completion chime. Only the public narration transcript is sent to Cartesia. The application itself works offline. [Cartesia API reference](https://docs.cartesia.ai/api-reference/tts/bytes).
 
