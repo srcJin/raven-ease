@@ -1,7 +1,8 @@
 """Run Ease's timed demonstration inside Raven's official simulator window.
 
-This entry point supplies scripted gaze input for a screen recording. It does
-not export, composite, or record any pixels. Normal main.py behavior is unchanged.
+This entry point supplies scripted gaze input for a screen recording. It delegates
+recording to the official SDK control and adds no visual overlays. Normal main.py
+behavior is unchanged.
 """
 import argparse
 import sys
@@ -52,6 +53,8 @@ class LiveDemo(EyeBreakApp):
                                    if button.toolTip() == "Record the simulator view to an mp4"), None)
         if self.record_button is None:
             print("EASE_DEMO_ERROR Official simulator Record control was not found.", flush=True)
+            if self.exit_after_save:
+                QApplication.instance().exit(1)
             return
         self.record_button.click()
         print(f"EASE_RECORD_T0 monotonic={time.monotonic():.6f} preroll={self.preroll:.1f}s", flush=True)
