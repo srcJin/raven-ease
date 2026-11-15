@@ -26,6 +26,8 @@ class LiveDemo(EyeBreakApp):
         self.record_requested = record
         self.preroll = preroll
         self.record_output = record_output
+        self.save_dialog_accepted = False
+        self.original_output_mtime = record_output.stat().st_mtime_ns if record_output and record_output.exists() else None
         self.record_button = None
         self.recording_stopped = False
         for button in (self.primary, self.secondary, self.interval):
@@ -55,7 +57,7 @@ class LiveDemo(EyeBreakApp):
         QTimer.singleShot(round(self.preroll * 1000), self.start_demo)
 
     def save_official_recording(self):
-        if self.record_output.exists() and self.record_output.stat().st_size > 0:
+        if self.save_dialog_accepted and self.record_output.exists() and self.record_output.stat().st_size > 0 and self.record_output.stat().st_mtime_ns != self.original_output_mtime:
             self.save_timer.stop()
             print(f"EASE_RECORD_SAVED {self.record_output}", flush=True)
             return
@@ -63,6 +65,7 @@ class LiveDemo(EyeBreakApp):
             if isinstance(window, QFileDialog) and window.isVisible() and window.windowTitle() == "Save recording":
                 window.setDirectory(str(self.record_output.parent))
                 window.selectFile(self.record_output.name)
+                self.save_dialog_accepted = True
                 window.accept()
                 return
 
