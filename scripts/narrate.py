@@ -14,6 +14,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--env-file", type=Path, default=os.getenv("CARTESIA_ENV_FILE"))
     parser.add_argument("--reuse-audio", action="store_true")
+    parser.add_argument("--video", type=Path, default=ROOT / "media/demo-silent.mp4")
+    parser.add_argument("--output", type=Path, default=ROOT / "media/demo.mp4")
     args = parser.parse_args()
     settings = dict(os.environ)
     if args.env_file:
@@ -55,10 +57,10 @@ def main():
     filters.append(f"[{chime_index}:a]volume=0.25,afade=t=in:d=0.04,afade=t=out:st=0.2:d=0.1,adelay=59500:all=1[chime]")
     streams = "".join(f"[a{i}]" for i in range(len(segments))) + "[chime]"
     filters.append(f"{streams}amix=inputs={len(segments)+1}:normalize=0,apad[audio]")
-    subprocess.run(["ffmpeg", "-y", "-i", str(ROOT / "media/demo-silent.mp4"), *inputs,
+    subprocess.run(["ffmpeg", "-y", "-i", str(args.video), *inputs,
                     "-filter_complex", ";".join(filters), "-map", "0:v", "-map", "[audio]",
                     "-t", str(DURATION), "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
-                    "-movflags", "+faststart", str(ROOT / "media/demo.mp4")], check=True)
+                    "-movflags", "+faststart", str(args.output)], check=True)
     print("Narrated simulator demo ready (68s, Cartesia English voice).")
 
 

@@ -15,4 +15,4 @@ The model uses elapsed monotonic time. A suspended computer can cause a reminder
 
 ## Media direction
 
-The 68-second narrated video presents real application renders within a labeled simulator frame. It shows the reminder, four gaze targets, the full distance interval, estimated closed-eye rest, and the return to work. Screenshots are direct exports of the application canvas. The demo uses deterministic simulated gaze so it can be reproduced without a physical device.
+The 68-second narrated video is recorded through the official Raven simulator's Record control. It shows the simulator's real rendered view directly, without added titles, lower captions, or decorative frames. It includes the reminder, four gaze targets, the full distance interval, estimated closed-eye rest, and completion. Screenshots are extracted from that recording. Scripted gaze drives the demo inside the actual running app. Cartesia English narration is added without altering the recorded video stream.

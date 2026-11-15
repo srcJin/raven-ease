@@ -81,14 +81,30 @@ The current deliverable has been checked in the desktop simulator. Physical devi
 
 ```bash
 python -m unittest discover -s tests -v
-QT_QPA_PLATFORM=offscreen python scripts/capture_demo.py
+python scripts/capture_demo.py
 ```
 
-The eleven behavior and UI tests cover reminders, snooze, five-second gaze timing, natural-blink preservation, pause, the full 20-second distance stage, closure baseline and recovery, short-blink and long-fault rejection, coordinate validation, polling interruption, chime retry, closed-eye pause recovery, and skip. The capture script runs the same `EyeBreakApp` drawing routines as the live application at 24 fps, drives deterministic simulated gaze, and exports six PNGs plus `media/demo-silent.mp4`. The 68-second sequence includes all four five-second gaze points, the full distance stage, and a ten-second eye-rest estimate. Its countdown begins three seconds before a reminder for a concise demonstration. It records a simulator sequence, not a hardware recording.
+The eleven behavior and UI tests cover reminders, snooze, five-second gaze timing, natural-blink preservation, pause, the full distance stage, closure baseline and recovery, short-blink and long-fault rejection, coordinate validation, polling interruption, chime retry, closed-eye pause recovery, and skip.
 
-Media capture requires Python 3.11+ for isolated render workers. Each frame uses an isolated process and an explicit session snapshot.
+The capture command opens the official Raven simulator in a desktop graphical session. `live_demo.py` supplies a deterministic gaze sequence while the simulator's own **Record** control records its stream. The script saves through the official recording dialog, measures the interval between recording start and demo start, and trims that preroll. Six screenshots are extracted from the recorded video. The resulting footage shows the official simulator view directly, with no added titles, captions, or decorative frame.
 
-The final `media/demo.mp4` adds English voice narration. The narration uses Cartesia Sonic with an English voice. FFmpeg is required to encode and combine the media. To reproduce it, copy `.env.example` to `.env`, supply your own API key, and run `python scripts/narrate.py --env-file .env`. Narration segments are aligned to the demonstrated stages, with a gentle completion chime. Only the public narration transcript is sent to Cartesia. The application itself works offline. [Cartesia API reference](https://docs.cartesia.ai/api-reference/tts/bytes).
+The 68-second sequence includes all four five-second gaze points, a full 20-second distance stage, and a ten-second eye-rest estimate. It begins three seconds before a reminder and holds the completion screen for the closing narration. This is a desktop simulator recording using scripted input. Keep the simulator window visible during capture. FFmpeg is required.
+
+For manual recording or adjusting the setup delay:
+
+```bash
+python live_demo.py --delay 5 --record --preroll 3 --record-output /tmp/ease-official.mp4
+```
+
+The default recording contains three seconds of preroll followed by the 68-second demonstration. The window remains open after saving. Add `--exit-after-save` to close it automatically. Console markers `EASE_RECORD_T0` and `EASE_DEMO_START` provide the actual trim offset.
+
+The final `media/demo.mp4` adds English Cartesia narration and a gentle chime to the official simulator video. Copy `.env.example` to `.env`, supply your API key, and run:
+
+```bash
+python scripts/narrate.py --env-file .env
+```
+
+To reuse already generated local narration segments, add `--reuse-audio`. `--video` and `--output` select alternate input and output paths. Narration is aligned to the recorded stages. The video stream is copied without adding or altering visual elements. Only the public narration transcript is sent to Cartesia. The application itself works offline. [Cartesia API reference](https://docs.cartesia.ai/api-reference/tts/bytes).
 
 ## License
 

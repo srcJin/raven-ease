@@ -9,7 +9,7 @@ import time
 from pathlib import Path
 
 from PySide6.QtCore import QTimer, Qt
-from PySide6.QtWidgets import QApplication, QFileDialog, QPushButton
+from PySide6.QtWidgets import QApplication, QFileDialog, QLineEdit, QPushButton
 from raven_framework import RunApp
 
 from main import EyeBreakApp, TARGETS
@@ -19,13 +19,14 @@ STEP = 1 / 120
 
 
 class LiveDemo(EyeBreakApp):
-    def __init__(self, delay, record=False, preroll=3.0, record_output=None):
+    def __init__(self, delay, record=False, preroll=3.0, record_output=None, exit_after_save=False):
         super().__init__(manual=True, interval=20)
         self.model.remaining = 3.0
         self.sync_ui()
         self.record_requested = record
         self.preroll = preroll
         self.record_output = record_output
+        self.exit_after_save = exit_after_save
         self.save_dialog_accepted = False
         self.original_output_mtime = record_output.stat().st_mtime_ns if record_output and record_output.exists() else None
         self.record_button = None
@@ -60,11 +61,16 @@ class LiveDemo(EyeBreakApp):
         if self.save_dialog_accepted and self.record_output.exists() and self.record_output.stat().st_size > 0 and self.record_output.stat().st_mtime_ns != self.original_output_mtime:
             self.save_timer.stop()
             print(f"EASE_RECORD_SAVED {self.record_output}", flush=True)
+            if self.exit_after_save:
+                QTimer.singleShot(500, QApplication.instance().quit)
             return
         for window in QApplication.topLevelWidgets():
             if isinstance(window, QFileDialog) and window.isVisible() and window.windowTitle() == "Save recording":
                 window.setDirectory(str(self.record_output.parent))
                 window.selectFile(self.record_output.name)
+                filename_field = window.findChild(QLineEdit, "fileNameEdit")
+                if filename_field is not None:
+                    filename_field.setText(self.record_output.name)
                 self.save_dialog_accepted = True
                 window.accept()
                 return
@@ -118,11 +124,14 @@ def main():
     parser.add_argument("--record", action="store_true", help="Use the official simulator Record control.")
     parser.add_argument("--preroll", type=float, default=3.0, help="Seconds between recording start and demo start.")
     parser.add_argument("--record-output", type=Path, help="Save the official recording through its Qt Save dialog.")
+    parser.add_argument("--exit-after-save", action="store_true", help="Exit after the official recording has been saved.")
     args = parser.parse_args()
     if args.delay < 0:
         parser.error("--delay must be zero or positive")
     if args.preroll < 0:
         parser.error("--preroll must be zero or positive")
+    if args.exit_after_save and not args.record_output:
+        parser.error("--exit-after-save requires --record-output")
     if args.record_output:
         args.record = True
         args.record_output = args.record_output.resolve()
@@ -130,7 +139,7 @@ def main():
         QApplication.setAttribute(Qt.ApplicationAttribute.AA_DontUseNativeDialogs, True)
     # RunApp has its own deployment CLI, so consume only this entry point's options.
     sys.argv = [sys.argv[0]]
-    RunApp.run(lambda: LiveDemo(args.delay, args.record, args.preroll, args.record_output), app_id="", app_key="")
+    RunApp.run(lambda: LiveDemo(args.delay, args.record, args.preroll, args.record_output, args.exit_after_save), app_id="", app_key="")
 
 
 if __name__ == "__main__":

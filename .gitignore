@@ -6,3 +6,4 @@ __pycache__/
 raven-framework/
 media/frames/
 media/narration-*.wav
+media/recording.log
